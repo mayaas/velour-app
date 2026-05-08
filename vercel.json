@@ -1,4 +1,8 @@
 {
+  "env": {
+    "VITE_SUPABASE_URL": "https://kxpvtmwzkxlnteopdxdu.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4cHZ0bXd6a3hsbnRlb3BkeGR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNTAwMDgsImV4cCI6MjA5MzgyNjAwOH0.DXFgUYxKcbcnu-BQXxPKeNgphoKnQENOjxkK45YKCmE"
+  },
   "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "headers": [
     {
