@@ -63,11 +63,27 @@ const LoadingScreen = () => (
   </div>
 )
 
+// Preview mode: set VITE_PREVIEW=true to skip auth entirely
+const PREVIEW_MODE = import.meta.env.VITE_PREVIEW === 'true'
+
+const MOCK_USER = {
+  id: 'preview-user-001',
+  email: 'preview@velour.app',
+  created_at: new Date().toISOString(),
+}
+
 function App() {
   const { user, setUser, setLoading, isLoading } = useAuthStore()
-  const [onboarded, setOnboarded] = useState(true) // set to false to test onboarding
+  const { setActiveView } = useUIStore()
+  const [onboarded, setOnboarded] = useState(true)
 
   useEffect(() => {
+    if (PREVIEW_MODE) {
+      setUser(MOCK_USER)
+      setActiveView('marketing')
+      setLoading(false)
+      return
+    }
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user) {
         setUser({ id: data.session.user.id, email: data.session.user.email!, created_at: data.session.user.created_at })
@@ -91,7 +107,14 @@ function App() {
 
   return (
     <AppShell>
-      <PageContent />
+      {PREVIEW_MODE && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-amber-400/10 border-b border-amber-400/30 text-center py-1.5 lg:pl-64">
+          <span className="text-[9px] tracking-[0.25em] uppercase text-amber-400">Preview Mode — Auth disabled</span>
+        </div>
+      )}
+      <div className={PREVIEW_MODE ? 'pt-7' : ''}>
+        <PageContent />
+      </div>
     </AppShell>
   )
 }
