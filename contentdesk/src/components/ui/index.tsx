@@ -11,7 +11,7 @@ Input.displayName = 'Input'
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> { label?: string; error?: string }
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ label, error, className, ...props }, ref) => (<div className="flex flex-col gap-1.5">{label && <label className="text-xs font-medium text-ink-3">{label}</label>}<textarea ref={ref} className={clsx('w-full px-3 py-2 text-sm rounded-lg border border-ink-5 bg-white text-ink placeholder-ink-4 outline-none resize-none','focus:border-brand-500 focus:ring-2 focus:ring-brand-100 transition-all', error && 'border-red-400', className)} {...props} />{error && <p className="text-xs text-red-500">{error}</p>}</div>))
-Texarea.displayName = 'Textarea'
+Textarea.displayName = 'Textarea'
 
 interface BadgeProps { children: ReactNode; color?: 'gray' | 'blue' | 'green' | 'amber' | 'red' | 'violet'; className?: string }
 export const Badge = ({ children, color = 'gray', className }: BadgeProps) => { const colors = { gray:'bg-ink-5/40 text-ink-3', blue:'bg-blue-100 text-blue-700', green:'bg-green-100 text-green-700', amber:'bg-amber-100 text-amber-700', red:'bg-red-100 text-red-600', violet:'bg-violet-100 text-violet-700' }; return <span className={clsx('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', colors[color], className)}>{children}</span> }
