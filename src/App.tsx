@@ -7,6 +7,7 @@ import { MatchesPage, MessagesPage } from './components/matching/MatchesAndMessa
 import { ProfilePage } from './components/profile/ProfilePage'
 import { AICoachPage } from './components/ai/AICoachPage'
 import { CoupleSystemPage } from './components/couple/CoupleSystemPage'
+import { MarketingPage } from './components/marketing/MarketingPage'
 import { OnboardingPage } from './components/onboarding/OnboardingPage'
 import { useAuthStore, useUIStore } from './store'
 import { supabase } from './lib/supabase'
@@ -43,6 +44,7 @@ const PageContent = () => {
     profile: <ProfilePage />,
     coach: <AICoachPage />,
     couple: <CoupleSystemPage />,
+    marketing: <MarketingPage />,
     settings: <SettingsPage />,
   }
   return (

@@ -190,3 +190,106 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('photos', 'photos', false
 
 CREATE POLICY "Authenticated users can upload photos" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'photos' AND (storage.foldername(name))[1] = auth.uid()::text);
 CREATE POLICY "Users can view own photos" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'photos' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ============================================================
+-- ORGANIC MARKETING ASSISTANT — Schema
+-- ============================================================
+
+-- ─── MARKETING TOPICS ──────────────────────────────────────
+
+CREATE TABLE marketing_topics (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  keyword TEXT NOT NULL,
+  description TEXT,
+  platforms TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ─── MARKETING OPPORTUNITIES ───────────────────────────────
+
+CREATE TABLE marketing_opportunities (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  topic_id UUID REFERENCES marketing_topics(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  platform TEXT NOT NULL,
+  title TEXT NOT NULL,
+  url TEXT NOT NULL,
+  body_snippet TEXT,
+  relevance_score FLOAT DEFAULT 0 CHECK (relevance_score >= 0 AND relevance_score <= 1),
+  opportunity_type TEXT NOT NULL DEFAULT 'question' CHECK (opportunity_type IN ('question','discussion','article_prompt','forum_thread')),
+  author TEXT,
+  upvotes INTEGER DEFAULT 0,
+  reply_count INTEGER DEFAULT 0,
+  subreddit TEXT,
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','drafting','drafted','skipped')),
+  discovered_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ─── MARKETING DRAFTS ──────────────────────────────────────
+
+CREATE TABLE marketing_drafts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  opportunity_id UUID REFERENCES marketing_opportunities(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  title TEXT,
+  content TEXT NOT NULL,
+  platform TEXT NOT NULL,
+  compliance_overall TEXT NOT NULL DEFAULT 'warn' CHECK (compliance_overall IN ('pass','warn','fail')),
+  compliance_rules JSONB DEFAULT '[]',
+  includes_product_link BOOLEAN NOT NULL DEFAULT false,
+  product_link_context TEXT,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','pending_review','approved','rejected','published')),
+  reviewer_notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Auto-update updated_at
+CREATE OR REPLACE FUNCTION update_marketing_draft_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER marketing_drafts_updated_at
+  BEFORE UPDATE ON marketing_drafts
+  FOR EACH ROW EXECUTE FUNCTION update_marketing_draft_timestamp();
+
+-- ─── MARKETING POSTS (published & tracked) ─────────────────
+
+CREATE TABLE marketing_posts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  draft_id UUID REFERENCES marketing_drafts(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  platform TEXT NOT NULL,
+  post_url TEXT NOT NULL,
+  published_at TIMESTAMPTZ DEFAULT now(),
+  opportunity_title TEXT,
+  topic TEXT,
+  views INTEGER NOT NULL DEFAULT 0,
+  clicks INTEGER NOT NULL DEFAULT 0,
+  upvotes INTEGER NOT NULL DEFAULT 0,
+  last_checked_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ─── ROW LEVEL SECURITY ────────────────────────────────────
+
+ALTER TABLE marketing_topics ENABLE ROW LEVEL SECURITY;
+ALTER TABLE marketing_opportunities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE marketing_drafts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE marketing_posts ENABLE ROW LEVEL SECURITY;
+
+-- Topics: owner only
+CREATE POLICY "Own marketing topics" ON marketing_topics FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+-- Opportunities: owner only
+CREATE POLICY "Own marketing opportunities" ON marketing_opportunities FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+-- Drafts: owner only
+CREATE POLICY "Own marketing drafts" ON marketing_drafts FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
+-- Posts: owner only
+CREATE POLICY "Own marketing posts" ON marketing_posts FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());

@@ -165,4 +165,4 @@ export interface Notification {
   created_at: string
 }
 
-export type AppView = 'discover' | 'matches' | 'messages' | 'profile' | 'settings' | 'coach' | 'couple'
+export type AppView = 'discover' | 'matches' | 'messages' | 'profile' | 'settings' | 'coach' | 'couple' | 'marketing'
