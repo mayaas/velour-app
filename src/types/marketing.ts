@@ -172,7 +172,7 @@ export const PLATFORM_RULES: Record<MarketingPlatform, PlatformRule> = {
     platform: 'forum',
     name: 'Niche Forum',
     rules: [
-      'Read and follow each forum's specific rules before posting',
+      "Read and follow each forum's specific rules before posting",
       'Build reputation by helping before promoting anything',
       'Check whether the forum allows any product mentions',
       'Never post in forums that explicitly ban self-promotion',
