@@ -75,11 +75,12 @@ export async function generateDraft(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ opportunity: opp, includeLink }),
     })
-    const data = await res.json()
-    if (res.ok && data.content) return data
-    // Surface the exact API error as the draft content so it's visible
-    if (!res.ok) {
-      return { content: `[API Error ${res.status}]: ${data.error ?? 'unknown'}\n\nDetail: ${data.detail ?? JSON.stringify(data)}` }
+    if (res.ok) {
+      const data = await res.json()
+      if (data.content) return data
+    } else {
+      const data = await res.json().catch(() => ({}))
+      return { content: `[API Error ${res.status}]: ${data.error ?? 'unknown'}\n\n${data.detail ?? ''}` }
     }
   } catch (err) {
     return { content: `[Network Error]: ${String(err)}` }
