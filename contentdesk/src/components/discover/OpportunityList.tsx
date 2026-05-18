@@ -36,7 +36,7 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
     updateOpportunityStatus(opp.id, 'drafting')
     try {
       const result = await generateDraft(opp, true)
-      const linkContext = 'hrmony.ai is an AI recruitment platform — directly relevant to this question. Link included for SEO.'
+      const linkContext = 'hrmony.ai is an AI recruitment platform — directly relevant to this question.'
       const compliance = checkCompliance(result.content, opp.platform, true, linkContext)
       const draft: Draft = {
         id: crypto.randomUUID(),
@@ -64,6 +64,7 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
 
   return (
     <Card className="p-4">
+      {/* Platform + type */}
       <div className="flex items-center gap-2 mb-2">
         <span className={clsx('text-xs font-medium px-2 py-0.5 rounded', meta.bg, meta.color)}>
           {meta.name}
@@ -74,9 +75,13 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
         {opp.status === 'drafting' && <Badge color="blue">Generating…</Badge>}
       </div>
 
+      {/* Title */}
       <p className="text-sm font-medium text-ink leading-snug mb-1.5">{opp.title}</p>
+
+      {/* Snippet */}
       <p className="text-xs text-ink-3 leading-relaxed line-clamp-2 mb-3">{opp.snippet}</p>
 
+      {/* Relevance */}
       <div className="mb-3">
         <div className="flex items-center justify-between mb-1">
           <span className="text-[11px] text-ink-4">Relevance</span>
@@ -84,6 +89,7 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
         <RelevanceBar score={opp.relevance_score} />
       </div>
 
+      {/* Footer */}
       <div className="flex items-center justify-between">
         <div className="flex gap-3 text-xs text-ink-4">
           {opp.posted_at && <span>📅 {relativeDate(opp.posted_at)}</span>}
