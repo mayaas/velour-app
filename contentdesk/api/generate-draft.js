@@ -5,11 +5,11 @@ module.exports = async function handler(req, res) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
+    const anthropicKeys = Object.keys(process.env).filter(k => k.toUpperCase().includes('ANTHROP'))
     return res.status(500).json({
       error: 'ANTHROPIC_API_KEY not configured',
       keyExists: 'ANTHROPIC_API_KEY' in process.env,
-      keyLength: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 0,
-      keyPreview: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.slice(0, 8) + '...' : 'empty',
+      anthropicRelatedKeys: anthropicKeys,
     })
   }
 
