@@ -5,12 +5,14 @@ import { TopicForm } from './components/discover/TopicForm'
 import { OpportunityList } from './components/discover/OpportunityList'
 import { ApprovalQueue } from './components/queue/ApprovalQueue'
 import { PerformanceTracker } from './components/tracker/PerformanceTracker'
+import { Settings } from './components/settings/Settings'
 import type { AppView } from './types'
 
 const NAV: { id: AppView; label: string; icon: string }[] = [
   { id: 'discover', label: 'Discover',     icon: '🔍' },
   { id: 'queue',    label: 'Review Queue', icon: '✍️' },
   { id: 'tracker',  label: 'Performance',  icon: '📊' },
+  { id: 'settings', label: 'Settings',     icon: '⚙️' },
 ]
 
 function App() {
@@ -76,7 +78,7 @@ function App() {
               <div className="space-y-6">
                 <div>
                   <h1 className="text-xl font-semibold text-ink">Discover Opportunities</h1>
-                  <p className="text-sm text-ink-3 mt-1">Find relevant questions and discussions where hrmony.ai's expertise adds genuine value.</p>
+                  <p className="text-sm text-ink-3 mt-1">Find relevant questions and discussions where hrmony.ai’s expertise adds genuine value.</p>
                 </div>
                 <TopicForm />
                 <OpportunityList />
@@ -100,6 +102,16 @@ function App() {
                   <p className="text-sm text-ink-3 mt-1">Track published content. Update stats manually from each platform.</p>
                 </div>
                 <PerformanceTracker />
+              </div>
+            )}
+
+            {view === 'settings' && (
+              <div className="space-y-6">
+                <div>
+                  <h1 className="text-xl font-semibold text-ink">Settings</h1>
+                  <p className="text-sm text-ink-3 mt-1">Configure publishing integrations.</p>
+                </div>
+                <Settings />
               </div>
             )}
           </motion.div>

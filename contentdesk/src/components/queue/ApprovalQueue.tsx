@@ -6,6 +6,74 @@ import { checkCompliance } from '../../lib/ai'
 import type { Draft } from '../../types'
 import { PLATFORM_META, PLATFORM_RULES } from '../../types'
 
+const PublishSection = ({ draft }: { draft: Draft }) => {
+  const { platformKeys, publishDraft, setView } = useStore()
+  const [publishing, setPublishing] = useState<string | null>(null)
+  const [error, setError]           = useState<string | null>(null)
+
+  const hasDevto  = Boolean(platformKeys.devto)
+  const hasMedium = Boolean(platformKeys.medium)
+
+  const autoPublish = async (platform: 'devto' | 'medium') => {
+    setError(null)
+    setPublishing(platform)
+    try {
+      const endpoint = platform === 'devto' ? '/api/publish-devto' : '/api/publish-medium'
+      const body =
+        platform === 'devto'
+          ? { title: draft.title || draft.opportunity.title, content: draft.content, apiKey: platformKeys.devto }
+          : { title: draft.title || draft.opportunity.title, content: draft.content, apiToken: platformKeys.medium }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || `Failed to publish to ${platform}`)
+      } else {
+        publishDraft(draft.id, data.url)
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unexpected error')
+    } finally {
+      setPublishing(null)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-ink-3 uppercase tracking-wide">Auto-publish</p>
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => autoPublish('devto')}
+          disabled={!hasDevto || publishing !== null}
+          className="px-4 py-2 text-sm font-medium rounded-lg bg-violet-600 text-white hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {publishing === 'devto' ? 'Publishing…' : 'Publish to DEV.to'}
+        </button>
+        <button
+          onClick={() => autoPublish('medium')}
+          disabled={!hasMedium || publishing !== null}
+          className="px-4 py-2 text-sm font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {publishing === 'medium' ? 'Publishing…' : 'Publish to Medium'}
+        </button>
+      </div>
+      {(!hasDevto || !hasMedium) && (
+        <p className="text-xs text-ink-4">
+          <button onClick={() => setView('settings')} className="text-brand-600 hover:underline">
+            → Add keys in Settings
+          </button>
+          {' '}to enable auto-publish
+        </p>
+      )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
+    </div>
+  )
+}
+
 const CompliancePanel = ({ draft }: { draft: Pick<Draft, 'content' | 'platform' | 'includes_link' | 'link_context'> }) => {
   const result = checkCompliance(draft.content, draft.platform, draft.includes_link, draft.link_context)
   return (
@@ -114,7 +182,7 @@ const DraftEditor = ({ draft, onClose }: { draft: Draft; onClose: () => void }) 
               rows={2}
             />
             {platformRules.disclosure && (
-              <p className="text-xs text-amber-600">⚠ {meta.name} requires affiliate disclosure. Make sure the draft includes "Full disclosure: I work at hrmony.ai."</p>
+              <p className="text-xs text-amber-600">⚠ {meta.name} requires affiliate disclosure. Make sure the draft includes “Full disclosure: I work at hrmony.ai.”</p>
             )}
           </>
         )}
@@ -141,8 +209,12 @@ const DraftEditor = ({ draft, onClose }: { draft: Draft; onClose: () => void }) 
       )}
 
       {draft.status === 'approved' && (
-        <div className="px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700">Approved — ready to publish.</div>
+        <div className="space-y-4 pt-2 border-t border-ink-5">
+          <div className="px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700">Approved — ready to publish.</div>
+          <PublishSection draft={draft} />
+        </div>
       )}
+
       {draft.status === 'rejected' && (
         <div className="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
           Rejected.{draft.reviewer_notes && <span className="ml-1">Reason: {draft.reviewer_notes}</span>}
@@ -186,7 +258,7 @@ export const ApprovalQueue = () => {
     return (
       <div className="py-20 text-center space-y-2">
         <p className="text-sm font-medium text-ink-3">No drafts yet</p>
-        <p className="text-xs text-ink-4">Go to Discover, find an opportunity, and click "Draft Answer".</p>
+        <p className="text-xs text-ink-4">Go to Discover, find an opportunity, and click “Draft Answer”.</p>
       </div>
     )
   }

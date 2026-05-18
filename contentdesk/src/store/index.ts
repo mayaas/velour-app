@@ -12,6 +12,7 @@ interface AppState {
   activeDraft: Draft | null
   isGenerating: boolean
   posts: Post[]
+  platformKeys: { devto?: string; medium?: string }
 
   setView: (v: AppView) => void
   addTopic: (t: Topic) => void
@@ -28,6 +29,7 @@ interface AppState {
   rejectDraft: (id: string, notes: string) => void
   publishDraft: (id: string, url: string) => void
   updatePostStats: (id: string, stats: Partial<Pick<Post, 'views' | 'clicks' | 'upvotes'>>) => void
+  setPlatformKey: (platform: 'devto' | 'medium', key: string) => void
 }
 
 export const useStore = create<AppState>()(
@@ -42,6 +44,7 @@ export const useStore = create<AppState>()(
       activeDraft: null,
       isGenerating: false,
       posts: [],
+      platformKeys: {},
 
       setView: (view) => set({ view }),
 
@@ -108,10 +111,12 @@ export const useStore = create<AppState>()(
         set((s) => ({
           posts: s.posts.map((p) => p.id === id ? { ...p, ...stats, last_updated: new Date().toISOString() } : p),
         })),
+
+      setPlatformKey: (platform, key) => set((s) => ({ platformKeys: { ...s.platformKeys, [platform]: key } })),
     }),
     {
       name: 'contentdesk-v1',
-      partialize: (s) => ({ topics: s.topics, drafts: s.drafts, posts: s.posts }),
+      partialize: (s) => ({ topics: s.topics, drafts: s.drafts, posts: s.posts, platformKeys: s.platformKeys }),
     }
   )
 )

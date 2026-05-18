@@ -77,7 +77,7 @@ export interface Post {
   last_updated: string
 }
 
-export type AppView = 'discover' | 'queue' | 'tracker'
+export type AppView = 'discover' | 'queue' | 'tracker' | 'settings'
 
 export const PLATFORM_META: Record<Platform, { name: string; color: string; bg: string }> = {
   linkedin:   { name: 'LinkedIn',     color: 'text-blue-600',   bg: 'bg-blue-50' },
