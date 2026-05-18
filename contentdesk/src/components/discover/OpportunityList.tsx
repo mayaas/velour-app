@@ -71,7 +71,6 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
         </span>
         <span className="text-xs text-ink-4 capitalize">{opp.type}</span>
         {opp.community && <span className="text-xs text-ink-4">r/{opp.community}</span>}
-        {opp.status === 'drafted' && <Badge color="green">Drafted ✓</Badge>}
         {opp.status === 'drafting' && <Badge color="blue">Generating…</Badge>}
       </div>
 
@@ -148,15 +147,25 @@ export const OpportunityList = () => {
     )
   }
 
-  const high = opportunities.filter((o) => o.relevance_score >= 0.7)
-  const mid  = opportunities.filter((o) => o.relevance_score >= 0.45 && o.relevance_score < 0.7)
-  const low  = opportunities.filter((o) => o.relevance_score < 0.45)
+  const visible = opportunities.filter((o) => o.status !== 'drafted')
+
+  if (!visible.length) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-sm text-ink-4">All opportunities drafted. Run a new search to find more.</p>
+      </div>
+    )
+  }
+
+  const high = visible.filter((o) => o.relevance_score >= 0.7)
+  const mid  = visible.filter((o) => o.relevance_score >= 0.45 && o.relevance_score < 0.7)
+  const low  = visible.filter((o) => o.relevance_score < 0.45)
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-ink">
-          {opportunities.length} opportunities for "<span className="text-brand-600">{activeTopic.keyword}</span>"
+          {visible.length} opportunities for "<span className="text-brand-600">{activeTopic.keyword}</span>"
         </p>
         <div className="flex gap-2">
           <Badge color="green">{high.length} High</Badge>
