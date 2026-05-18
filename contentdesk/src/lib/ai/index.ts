@@ -13,7 +13,6 @@ export function checkCompliance(
   const rules = PLATFORM_RULES[platform]
   const checks = []
 
-  // Value before promotion
   const firstPara = lower.split('\n\n')[0] ?? ''
   const linkInOpener = includesLink && (firstPara.includes('hrmony') || firstPara.includes('our platform') || firstPara.includes('our tool'))
   checks.push({
@@ -22,7 +21,6 @@ export function checkCompliance(
     note: linkInOpener ? 'Move any product mention out of the opening paragraph.' : undefined,
   } as const)
 
-  // Disclosure
   if (rules.disclosure && includesLink) {
     const hasDisclosure = ['full disclosure', 'i work at', 'i built', 'disclaimer', 'i\'m affiliated', 'i am affiliated', 'hrmony.ai team'].some((p) => lower.includes(p))
     checks.push({
@@ -32,7 +30,6 @@ export function checkCompliance(
     } as const)
   }
 
-  // No marketing language
   const banned = ['sign up now', 'try it free', 'book a demo', 'click here', '#1 platform', 'best-in-class', 'game changer', 'revolutionary']
   const found = banned.filter((p) => lower.includes(p))
   checks.push({
@@ -41,7 +38,6 @@ export function checkCompliance(
     note: found.length > 0 ? `Remove: ${found.join(', ')}` : undefined,
   } as const)
 
-  // Word count
   const words = content.trim().split(/\s+/).filter(Boolean).length
   checks.push({
     label: 'Substantive length (100+ words)',
@@ -49,7 +45,6 @@ export function checkCompliance(
     note: words < 100 ? `${words} words — expand with more useful detail.` : undefined,
   } as const)
 
-  // Link context when included
   if (includesLink) {
     const hasContext = (linkContext ?? '').trim().length > 15
     checks.push({
@@ -80,18 +75,20 @@ export async function generateDraft(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ opportunity: opp, includeLink }),
     })
-    if (res.ok) {
-      const data = await res.json()
-      if (data.content) return data
+    const data = await res.json()
+    if (res.ok && data.content) return data
+    // Surface the exact API error as the draft content so it's visible
+    if (!res.ok) {
+      return { content: `[API Error ${res.status}]: ${data.error ?? 'unknown'}\n\nDetail: ${data.detail ?? JSON.stringify(data)}` }
     }
-  } catch {
-    // fall through to template fallback
+  } catch (err) {
+    return { content: `[Network Error]: ${String(err)}` }
   }
   await new Promise((r) => setTimeout(r, 1600))
   return buildDraft(opp, includeLink)
 }
 
-// ─── Template fallback (used when API key is not configured) ──────────────────
+// ─── Template fallback ──────────────────────────────────────────────────────────────
 
 function buildDraft(opp: Opportunity, includeLink: boolean): { title?: string; content: string } {
   if (opp.type === 'article' || opp.platform === 'medium') return buildArticle(opp, includeLink)
@@ -103,11 +100,9 @@ function buildQA(_opp: Opportunity, includeLink: boolean): { content: string } {
   const disclosure = includeLink
     ? '\n\n*Full disclosure: I work at hrmony.ai, so I have direct experience with this — but the points above apply regardless of which tools you use.*'
     : ''
-
   const productMention = includeLink
     ? '\n\nIf you\'re evaluating platforms: hrmony.ai (https://hrmony.ai) is built specifically around this use case. Happy to share more detail on how we approach it if useful.'
     : ''
-
   return {
     content: `This is one of the more important questions in the space right now, and the honest answer is more nuanced than most vendor content suggests.
 
@@ -129,7 +124,6 @@ function buildArticle(_opp: Opportunity, includeLink: boolean): { title: string;
   const productSection = includeLink
     ? '\n\n## What We\'ve Learned at hrmony.ai\n\nBuilding in this space has given us a close view of where AI delivers genuine leverage and where it falls short. The patterns above reflect what we\'ve seen across implementations, not just theory.\n\nLearn more: https://hrmony.ai\n\n*Disclosure: I work at hrmony.ai, an AI recruitment platform.*'
     : ''
-
   return {
     title: 'AI in Recruitment: A Practitioner\'s Honest Guide',
     content: `Most writing about AI in recruitment falls into two categories: breathless optimism from vendors, or reflexive scepticism from commentators who haven't seen it work. This piece tries to offer something more useful: a practitioner's view of what's actually true.
@@ -160,7 +154,6 @@ function buildTechnical(_opp: Opportunity, includeLink: boolean): { content: str
   const disclosure = includeLink
     ? '\n\n> Disclosure: I work at hrmony.ai (https://hrmony.ai), which builds in this space, so I have hands-on context here.'
     : ''
-
   return {
     content: `The gap between "we use AI for hiring" and "we use AI well for hiring" is mostly an engineering and process discipline problem, not a model problem.
 
