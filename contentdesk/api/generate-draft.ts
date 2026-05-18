@@ -1,3 +1,5 @@
+export const config = { runtime: 'edge' }
+
 const SYSTEM_PROMPT = `You are a content strategist for hrmony.ai, an AI-powered recruitment platform that helps companies hire smarter using AI screening, semantic candidate matching, and bias auditing.
 
 Your job: write authentic, helpful responses to online posts and questions about AI in recruitment, talent acquisition, and hiring technology. You are writing as a knowledgeable practitioner sharing real experience — not as a marketer.
@@ -10,22 +12,26 @@ Rules:
 - Keep Q&A responses 150–300 words. Articles 400–600 words.
 - Always return valid JSON only — no markdown fences, no preamble.`
 
-export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' })
-    return
+export default async function handler(request: Request): Promise<Response> {
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } })
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
-    res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
-    return
+    return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 
-  const { opportunity, includeLink } = req.body ?? {}
+  let body: any
+  try {
+    body = await request.json()
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+  }
+
+  const { opportunity, includeLink } = body ?? {}
   if (!opportunity?.title) {
-    res.status(400).json({ error: 'Missing opportunity' })
-    return
+    return new Response(JSON.stringify({ error: 'Missing opportunity' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
 
   const isArticle = opportunity.type === 'article' || opportunity.platform === 'medium'
@@ -36,7 +42,6 @@ export default async function handler(req: any, res: any) {
     : ''
 
   let userPrompt: string
-
   if (isArticle) {
     userPrompt = `Write a Medium article for this opportunity:\n\nPost title: ${opportunity.title}\nContext: ${opportunity.snippet}\n\nWrite a structured article with H2 sections in markdown. Return JSON:\n{"title": "your article title", "content": "full article in markdown"}${linkNote}`
   } else if (isTechnical) {
@@ -46,7 +51,7 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,24 +66,20 @@ export default async function handler(req: any, res: any) {
       }),
     })
 
-    if (!response.ok) {
-      const err = await response.text()
-      console.error('Anthropic API error:', response.status, err)
-      res.status(500).json({ error: 'Anthropic API error', detail: err })
-      return
+    if (!anthropicRes.ok) {
+      const errText = await anthropicRes.text()
+      return new Response(JSON.stringify({ error: 'Anthropic API error', detail: errText }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
-    const data = await response.json() as any
+    const data: any = await anthropicRes.json()
     const text: string = data.content?.[0]?.text ?? ''
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      res.status(500).json({ error: 'Unexpected AI response format', raw: text })
-      return
+      return new Response(JSON.stringify({ error: 'Unexpected format', raw: text }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
-    res.status(200).json(JSON.parse(jsonMatch[0]))
+    return new Response(jsonMatch[0], { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (err) {
-    console.error('Handler error:', err)
-    res.status(500).json({ error: String(err) })
+    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
