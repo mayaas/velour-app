@@ -18,6 +18,7 @@ export default async function handler(request: Request): Promise<Response> {
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
+  console.log('[generate-draft] apiKey present:', !!apiKey)
   if (!apiKey) {
     return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
@@ -25,11 +26,13 @@ export default async function handler(request: Request): Promise<Response> {
   let body: any
   try {
     body = await request.json()
-  } catch {
+  } catch (e) {
+    console.log('[generate-draft] body parse error:', e)
     return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
 
   const { opportunity, includeLink } = body ?? {}
+  console.log('[generate-draft] opportunity title:', opportunity?.title)
   if (!opportunity?.title) {
     return new Response(JSON.stringify({ error: 'Missing opportunity' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
@@ -50,6 +53,7 @@ export default async function handler(request: Request): Promise<Response> {
     userPrompt = `Write a helpful answer to this specific post:\n\nPost title: ${opportunity.title}\nContext: ${opportunity.snippet}\nPlatform: ${opportunity.platform}${opportunity.community ? `\nCommunity: r/${opportunity.community}` : ''}\n\nAddress exactly what this post is asking. Make it specific, not generic. Return JSON:\n{"content": "response in markdown"}${linkNote}`
   }
 
+  console.log('[generate-draft] calling Anthropic API...')
   try {
     const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -66,8 +70,10 @@ export default async function handler(request: Request): Promise<Response> {
       }),
     })
 
+    console.log('[generate-draft] Anthropic status:', anthropicRes.status)
     if (!anthropicRes.ok) {
       const errText = await anthropicRes.text()
+      console.error('[generate-draft] Anthropic error:', errText)
       return new Response(JSON.stringify({ error: 'Anthropic API error', detail: errText }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
@@ -75,11 +81,14 @@ export default async function handler(request: Request): Promise<Response> {
     const text: string = data.content?.[0]?.text ?? ''
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
+      console.error('[generate-draft] unexpected format, raw:', text)
       return new Response(JSON.stringify({ error: 'Unexpected format', raw: text }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
+    console.log('[generate-draft] success')
     return new Response(jsonMatch[0], { status: 200, headers: { 'Content-Type': 'application/json' } })
   } catch (err) {
+    console.error('[generate-draft] fetch error:', String(err))
     return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 }
