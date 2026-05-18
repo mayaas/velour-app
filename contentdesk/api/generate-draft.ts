@@ -1,6 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-
 const SYSTEM_PROMPT = `You are a content strategist for hrmony.ai, an AI-powered recruitment platform that helps companies hire smarter using AI screening, semantic candidate matching, and bias auditing.
 
 Your job: write authentic, helpful responses to online posts and questions about AI in recruitment, talent acquisition, and hiring technology. You are writing as a knowledgeable practitioner sharing real experience — not as a marketer.
@@ -13,16 +10,23 @@ Rules:
 - Keep Q&A responses 150–300 words. Articles 400–600 words.
 - Always return valid JSON only — no markdown fences, no preamble.`
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' })
+    return
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
+  if (!apiKey) {
+    res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
+    return
+  }
 
-  const { opportunity, includeLink } = req.body
-  if (!opportunity?.title) return res.status(400).json({ error: 'Missing opportunity' })
-
-  const client = new Anthropic({ apiKey })
+  const { opportunity, includeLink } = req.body ?? {}
+  if (!opportunity?.title) {
+    res.status(400).json({ error: 'Missing opportunity' })
+    return
+  }
 
   const isArticle = opportunity.type === 'article' || opportunity.platform === 'medium'
   const isTechnical = opportunity.platform === 'hackernews' || opportunity.platform === 'devto'
@@ -42,20 +46,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const msg = await client.messages.create({
-      model: 'claude-opus-4-7',
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userPrompt }],
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
     })
 
-    const text = msg.content[0].type === 'text' ? msg.content[0].text : ''
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) return res.status(500).json({ error: 'Unexpected AI response format' })
+    if (!response.ok) {
+      const err = await response.text()
+      console.error('Anthropic API error:', response.status, err)
+      res.status(500).json({ error: 'Anthropic API error', detail: err })
+      return
+    }
 
-    return res.status(200).json(JSON.parse(jsonMatch[0]))
+    const data = await response.json() as any
+    const text: string = data.content?.[0]?.text ?? ''
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      res.status(500).json({ error: 'Unexpected AI response format', raw: text })
+      return
+    }
+
+    res.status(200).json(JSON.parse(jsonMatch[0]))
   } catch (err) {
-    console.error('Claude API error:', err)
-    return res.status(500).json({ error: 'Failed to generate draft' })
+    console.error('Handler error:', err)
+    res.status(500).json({ error: String(err) })
   }
 }
