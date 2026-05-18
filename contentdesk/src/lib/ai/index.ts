@@ -1,6 +1,8 @@
 import type { Opportunity, ComplianceResult, Platform } from '../../types'
 import { PLATFORM_RULES } from '../../types'
 
+// ─── Compliance ───────────────────────────────────────────────────────────────
+
 export function checkCompliance(
   content: string,
   platform: Platform,
@@ -11,6 +13,7 @@ export function checkCompliance(
   const rules = PLATFORM_RULES[platform]
   const checks = []
 
+  // Value before promotion
   const firstPara = lower.split('\n\n')[0] ?? ''
   const linkInOpener = includesLink && (firstPara.includes('hrmony') || firstPara.includes('our platform') || firstPara.includes('our tool'))
   checks.push({
@@ -19,6 +22,7 @@ export function checkCompliance(
     note: linkInOpener ? 'Move any product mention out of the opening paragraph.' : undefined,
   } as const)
 
+  // Disclosure
   if (rules.disclosure && includesLink) {
     const hasDisclosure = ['full disclosure', 'i work at', 'i built', 'disclaimer', 'i\'m affiliated', 'i am affiliated', 'hrmony.ai team'].some((p) => lower.includes(p))
     checks.push({
@@ -28,6 +32,7 @@ export function checkCompliance(
     } as const)
   }
 
+  // No marketing language
   const banned = ['sign up now', 'try it free', 'book a demo', 'click here', '#1 platform', 'best-in-class', 'game changer', 'revolutionary']
   const found = banned.filter((p) => lower.includes(p))
   checks.push({
@@ -36,6 +41,7 @@ export function checkCompliance(
     note: found.length > 0 ? `Remove: ${found.join(', ')}` : undefined,
   } as const)
 
+  // Word count
   const words = content.trim().split(/\s+/).filter(Boolean).length
   checks.push({
     label: 'Substantive length (100+ words)',
@@ -43,6 +49,7 @@ export function checkCompliance(
     note: words < 100 ? `${words} words — expand with more useful detail.` : undefined,
   } as const)
 
+  // Link context when included
   if (includesLink) {
     const hasContext = (linkContext ?? '').trim().length > 15
     checks.push({
@@ -61,13 +68,30 @@ export function checkCompliance(
   }
 }
 
+// ─── Draft Generation ─────────────────────────────────────────────────────────
+
 export async function generateDraft(
   opp: Opportunity,
   includeLink = true,
 ): Promise<{ title?: string; content: string }> {
+  try {
+    const res = await fetch('/api/generate-draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ opportunity: opp, includeLink }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (data.content) return data
+    }
+  } catch {
+    // fall through to template fallback
+  }
   await new Promise((r) => setTimeout(r, 1600))
   return buildDraft(opp, includeLink)
 }
+
+// ─── Template fallback (used when API key is not configured) ──────────────────
 
 function buildDraft(opp: Opportunity, includeLink: boolean): { title?: string; content: string } {
   if (opp.type === 'article' || opp.platform === 'medium') return buildArticle(opp, includeLink)
@@ -107,7 +131,7 @@ function buildArticle(_opp: Opportunity, includeLink: boolean): { title: string;
     : ''
 
   return {
-    title: "AI in Recruitment: A Practitioner's Honest Guide",
+    title: 'AI in Recruitment: A Practitioner\'s Honest Guide',
     content: `Most writing about AI in recruitment falls into two categories: breathless optimism from vendors, or reflexive scepticism from commentators who haven't seen it work. This piece tries to offer something more useful: a practitioner's view of what's actually true.
 
 ## What AI Does Well in Recruitment
