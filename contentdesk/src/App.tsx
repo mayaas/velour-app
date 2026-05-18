@@ -34,7 +34,7 @@ function App() {
           </div>
           <div>
             <span className="font-semibold text-ink text-sm">ContentDesk</span>
-            <span className="text-ink-4 text-xs ml-2">by Harmonai</span>
+            <span className="text-ink-4 text-xs ml-2">by hrmony.ai</span>
           </div>
         </div>
 
@@ -76,7 +76,7 @@ function App() {
               <div className="space-y-6">
                 <div>
                   <h1 className="text-xl font-semibold text-ink">Discover Opportunities</h1>
-                  <p className="text-sm text-ink-3 mt-1">Find relevant questions and discussions where Harmonai's expertise adds genuine value.</p>
+                  <p className="text-sm text-ink-3 mt-1">Find relevant questions and discussions where hrmony.ai's expertise adds genuine value.</p>
                 </div>
                 <TopicForm />
                 <OpportunityList />
@@ -107,7 +107,7 @@ function App() {
       </main>
 
       <footer className="text-center py-4 text-xs text-ink-5 border-t border-ink-5 bg-white">
-        ContentDesk · Harmonai · Private use only
+        ContentDesk · hrmony.ai · Private use only
       </footer>
     </div>
   )

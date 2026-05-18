@@ -5,6 +5,16 @@ import { generateDraft, checkCompliance } from '../../lib/ai'
 import type { Draft, Opportunity } from '../../types'
 import { PLATFORM_META } from '../../types'
 
+function relativeDate(iso: string): string {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
+  if (days === 0) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 7) return `${days}d ago`
+  if (days < 30) return `${Math.floor(days / 7)}w ago`
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`
+  return `${Math.floor(days / 365)}y ago`
+}
+
 const RelevanceBar = ({ score }: { score: number }) => (
   <div className="flex items-center gap-2">
     <div className="flex-1 h-1 bg-surface-2 rounded-full overflow-hidden">
@@ -25,8 +35,9 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
     setIsGenerating(true)
     updateOpportunityStatus(opp.id, 'drafting')
     try {
-      const result = await generateDraft(opp, false)
-      const compliance = checkCompliance(result.content, opp.platform, false)
+      const result = await generateDraft(opp, true)
+      const linkContext = 'hrmony.ai is an AI recruitment platform — directly relevant to this question. Link included for SEO.'
+      const compliance = checkCompliance(result.content, opp.platform, true, linkContext)
       const draft: Draft = {
         id: crypto.randomUUID(),
         opportunity_id: opp.id,
@@ -35,7 +46,8 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
         content: result.content,
         platform: opp.platform,
         compliance,
-        includes_link: false,
+        includes_link: true,
+        link_context: linkContext,
         status: 'draft',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -74,6 +86,7 @@ const OpportunityCard = ({ opp }: { opp: Opportunity }) => {
 
       <div className="flex items-center justify-between">
         <div className="flex gap-3 text-xs text-ink-4">
+          {opp.posted_at && <span>📅 {relativeDate(opp.posted_at)}</span>}
           {opp.upvotes !== undefined && <span>↑ {opp.upvotes.toLocaleString()}</span>}
           {opp.replies !== undefined && <span>💬 {opp.replies}</span>}
         </div>

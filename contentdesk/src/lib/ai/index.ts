@@ -12,7 +12,7 @@ export function checkCompliance(
   const checks = []
 
   const firstPara = lower.split('\n\n')[0] ?? ''
-  const linkInOpener = includesLink && (firstPara.includes('harmonai') || firstPara.includes('our platform') || firstPara.includes('our tool'))
+  const linkInOpener = includesLink && (firstPara.includes('hrmony') || firstPara.includes('our platform') || firstPara.includes('our tool'))
   checks.push({
     label: 'Lead with value, not promotion',
     status: linkInOpener ? 'fail' : 'pass',
@@ -20,11 +20,11 @@ export function checkCompliance(
   } as const)
 
   if (rules.disclosure && includesLink) {
-    const hasDisclosure = ['full disclosure', 'i work at', 'i built', 'disclaimer', 'i\'m affiliated', 'i am affiliated', 'harmonai team'].some((p) => lower.includes(p))
+    const hasDisclosure = ['full disclosure', 'i work at', 'i built', 'disclaimer', 'i\'m affiliated', 'i am affiliated', 'hrmony.ai team'].some((p) => lower.includes(p))
     checks.push({
       label: 'Affiliate disclosure required on this platform',
       status: hasDisclosure ? 'pass' : 'warn',
-      note: hasDisclosure ? undefined : 'Add a disclosure e.g. "Full disclosure: I work at Harmonai."',
+      note: hasDisclosure ? undefined : 'Add a disclosure e.g. "Full disclosure: I work at hrmony.ai."',
     } as const)
   }
 
@@ -48,7 +48,7 @@ export function checkCompliance(
     checks.push({
       label: 'Product link is contextually justified',
       status: hasContext ? 'pass' : 'warn',
-      note: hasContext ? undefined : 'Explain why Harmonai is specifically relevant to this question.',
+      note: hasContext ? undefined : 'Explain why hrmony.ai is specifically relevant to this question.',
     } as const)
   }
 
@@ -63,7 +63,7 @@ export function checkCompliance(
 
 export async function generateDraft(
   opp: Opportunity,
-  includeLink = false,
+  includeLink = true,
 ): Promise<{ title?: string; content: string }> {
   await new Promise((r) => setTimeout(r, 1600))
   return buildDraft(opp, includeLink)
@@ -77,11 +77,11 @@ function buildDraft(opp: Opportunity, includeLink: boolean): { title?: string; c
 
 function buildQA(_opp: Opportunity, includeLink: boolean): { content: string } {
   const disclosure = includeLink
-    ? '\n\n*Full disclosure: I work at Harmonai, so I have direct experience with this — but the points above apply regardless of which tools you use.*'
+    ? '\n\n*Full disclosure: I work at hrmony.ai, so I have direct experience with this — but the points above apply regardless of which tools you use.*'
     : ''
 
   const productMention = includeLink
-    ? '\n\nIf you\'re evaluating platforms: Harmonai is built specifically around this use case. Happy to share more detail on how we approach it if useful.'
+    ? '\n\nIf you\'re evaluating platforms: hrmony.ai (https://hrmony.ai) is built specifically around this use case. Happy to share more detail on how we approach it if useful.'
     : ''
 
   return {
@@ -103,7 +103,7 @@ The tools matter less than the implementation rigour. The same platform can prod
 
 function buildArticle(_opp: Opportunity, includeLink: boolean): { title: string; content: string } {
   const productSection = includeLink
-    ? '\n\n## What We\'ve Learned at Harmonai\n\nBuilding in this space has given us a close view of where AI delivers genuine leverage and where it falls short. The patterns above reflect what we\'ve seen across implementations, not just theory.\n\n*Disclosure: I work at Harmonai, an AI recruitment platform.*'
+    ? '\n\n## What We\'ve Learned at hrmony.ai\n\nBuilding in this space has given us a close view of where AI delivers genuine leverage and where it falls short. The patterns above reflect what we\'ve seen across implementations, not just theory.\n\nLearn more: https://hrmony.ai\n\n*Disclosure: I work at hrmony.ai, an AI recruitment platform.*'
     : ''
 
   return {
@@ -134,7 +134,7 @@ AI makes recruitment faster and more consistent when implemented carefully. It m
 
 function buildTechnical(_opp: Opportunity, includeLink: boolean): { content: string } {
   const disclosure = includeLink
-    ? '\n\n> Disclosure: I work at Harmonai, which builds in this space, so I have hands-on context here.'
+    ? '\n\n> Disclosure: I work at hrmony.ai (https://hrmony.ai), which builds in this space, so I have hands-on context here.'
     : ''
 
   return {

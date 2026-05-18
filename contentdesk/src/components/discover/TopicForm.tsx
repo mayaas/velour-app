@@ -57,7 +57,7 @@ export const TopicForm = () => {
       <div className="bg-white rounded-xl border border-ink-5 shadow-sm p-5 space-y-4">
         <div>
           <h2 className="text-sm font-semibold text-ink mb-0.5">Keyword or topic</h2>
-          <p className="text-xs text-ink-3 mb-3">What subject should Harmonai be known for?</p>
+          <p className="text-xs text-ink-3 mb-3">What subject should hrmony.ai be known for?</p>
           <div className="flex gap-2">
             <Input
               className="flex-1"

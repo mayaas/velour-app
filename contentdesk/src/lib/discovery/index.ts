@@ -15,44 +15,44 @@ function score(keyword: string, title: string, body: string, upvotes = 0, replie
 }
 
 const LINKEDIN_POOL = [
-  { title: 'How is AI actually changing the recruitment process in 2025?', snippet: 'Article with 4.2k reactions. Comment thread asking for practitioner perspectives on what AI tools genuinely automate vs. what still needs humans.' },
-  { title: 'The skills-based hiring revolution: hype or reality?', snippet: 'Discussion post with 680 comments. HR leaders debating whether AI screening tools are accelerating or obstructing skills-based approaches.' },
-  { title: 'AI bias in hiring — are we solving the problem or making it worse?', snippet: 'Post by a CHRO with 1.1k comments. Asking for examples of audited, explainable AI systems in recruitment.' },
-  { title: 'Which ATS platforms are actually integrating AI effectively in 2025?', snippet: "Practitioners sharing reviews. Several comments asking for vendor-neutral comparisons from people who've run pilots." },
-  { title: 'Time-to-hire dropped 40% after adopting AI screening — our experience', snippet: 'Case study post asking: "What metrics are others tracking after AI adoption? Quality-of-hire? Diversity rates?"' },
-  { title: 'Is ChatGPT a threat to recruiters or a superpower?', snippet: 'Poll + discussion with 3k votes. Comments request concrete examples of AI augmenting recruiters, not replacing them.' },
+  { title: 'How is AI actually changing the recruitment process in 2025?', snippet: 'Article with 4.2k reactions. Comment thread asking for practitioner perspectives on what AI tools genuinely automate vs. what still needs humans.', posted_at: '2026-05-15' },
+  { title: 'The skills-based hiring revolution: hype or reality?', snippet: 'Discussion post with 680 comments. HR leaders debating whether AI screening tools are accelerating or obstructing skills-based approaches.', posted_at: '2026-05-13' },
+  { title: 'AI bias in hiring — are we solving the problem or making it worse?', snippet: 'Post by a CHRO with 1.1k comments. Asking for examples of audited, explainable AI systems in recruitment.', posted_at: '2026-05-11' },
+  { title: 'Which ATS platforms are actually integrating AI effectively in 2025?', snippet: "Practitioners sharing reviews. Several comments asking for vendor-neutral comparisons from people who've run pilots.", posted_at: '2026-05-08' },
+  { title: 'Time-to-hire dropped 40% after adopting AI screening — our experience', snippet: 'Case study post asking: "What metrics are others tracking after AI adoption? Quality-of-hire? Diversity rates?"', posted_at: '2026-05-04' },
+  { title: 'Is ChatGPT a threat to recruiters or a superpower?', snippet: 'Poll + discussion with 3k votes. Comments request concrete examples of AI augmenting recruiters, not replacing them.', posted_at: '2026-04-27' },
 ]
 
 const REDDIT_POOL = [
-  { title: 'How do you handle AI-generated CVs as a recruiter?', snippet: 'r/recruiting — 287 upvotes. Recruiters asking for tools or techniques to identify AI-generated applications and assess genuine fit.', community: 'recruiting', upvotes: 287, replies: 94 },
-  { title: 'Best AI tools for sourcing candidates in 2025?', snippet: 'r/humanresources — 156 upvotes. TA teams asking for recommendations beyond LinkedIn Recruiter. Practical tool reviews wanted.', community: 'humanresources', upvotes: 156, replies: 61 },
-  { title: 'Our company wants to use AI for initial screening — ethical concerns?', snippet: 'r/recruiting — 412 upvotes. Recruiter raising concerns about bias, transparency, and candidate experience with AI screening.', community: 'recruiting', upvotes: 412, replies: 138 },
-  { title: 'Has anyone actually measured quality-of-hire improvement after adding AI?', snippet: 'r/humanresources — 203 upvotes. Looking for real data, not vendor case studies.', community: 'humanresources', upvotes: 203, replies: 55 },
-  { title: 'What does an AI-powered recruitment workflow actually look like end-to-end?', snippet: 'r/recruiting — 178 upvotes. Junior recruiter asking for a realistic picture of how AI fits into the process.', community: 'recruiting', upvotes: 178, replies: 72 },
+  { title: 'How do you handle AI-generated CVs as a recruiter?', snippet: 'r/recruiting — 287 upvotes. Recruiters asking for tools or techniques to identify AI-generated applications and assess genuine fit.', community: 'recruiting', upvotes: 287, replies: 94, posted_at: '2026-05-16' },
+  { title: 'Best AI tools for sourcing candidates in 2025?', snippet: 'r/humanresources — 156 upvotes. TA teams asking for recommendations beyond LinkedIn Recruiter. Practical tool reviews wanted.', community: 'humanresources', upvotes: 156, replies: 61, posted_at: '2026-05-14' },
+  { title: 'Our company wants to use AI for initial screening — ethical concerns?', snippet: 'r/recruiting — 412 upvotes. Recruiter raising concerns about bias, transparency, and candidate experience with AI screening.', community: 'recruiting', upvotes: 412, replies: 138, posted_at: '2026-05-11' },
+  { title: 'Has anyone actually measured quality-of-hire improvement after adding AI?', snippet: 'r/humanresources — 203 upvotes. Looking for real data, not vendor case studies.', community: 'humanresources', upvotes: 203, replies: 55, posted_at: '2026-05-04' },
+  { title: 'What does an AI-powered recruitment workflow actually look like end-to-end?', snippet: 'r/recruiting — 178 upvotes. Junior recruiter asking for a realistic picture of how AI fits into the process.', community: 'recruiting', upvotes: 178, replies: 72, posted_at: '2026-04-27' },
 ]
 
 const QUORA_POOL = [
-  { title: 'What are the best AI tools for recruiting and talent acquisition in 2025?', snippet: 'Question with 48k views. Top answers are outdated. Space for a current, practitioner answer.', upvotes: 891, replies: 34 },
-  { title: 'How does AI improve candidate matching beyond keyword search?', snippet: 'Question with 22k views. Technically shallow answers. Room for an explanation of semantic matching and structured signals.', upvotes: 445, replies: 18 },
-  { title: 'Can AI eliminate bias in hiring, or does it amplify it?', snippet: 'Question with 67k views. No answer from an AI-in-recruitment practitioner who has run audits.', upvotes: 1240, replies: 52 },
+  { title: 'What are the best AI tools for recruiting and talent acquisition in 2025?', snippet: 'Question with 48k views. Top answers are outdated. Space for a current, practitioner answer.', upvotes: 891, replies: 34, posted_at: '2026-04-18' },
+  { title: 'How does AI improve candidate matching beyond keyword search?', snippet: 'Question with 22k views. Technically shallow answers. Room for an explanation of semantic matching and structured signals.', upvotes: 445, replies: 18, posted_at: '2026-02-18' },
+  { title: 'Can AI eliminate bias in hiring, or does it amplify it?', snippet: 'Question with 67k views. No answer from an AI-in-recruitment practitioner who has run audits.', upvotes: 1240, replies: 52, posted_at: '2025-11-18' },
 ]
 
 const MEDIUM_POOL = [
-  { title: 'Write for us: The Future of AI in Talent Acquisition', snippet: '"Future of Work" publication on Medium actively seeking expert contributors. 28k subscribers. Topics: AI screening, bias auditing, candidate experience.' },
-  { title: 'Article opportunity: Skills-based hiring + AI — what the data shows', snippet: '"HR Tech Insider" is curating data-driven pieces on AI recruitment outcomes. Ideal for a Harmonai perspective backed by customer data.' },
+  { title: 'Write for us: The Future of AI in Talent Acquisition', snippet: '"Future of Work" publication on Medium actively seeking expert contributors. 28k subscribers. Topics: AI screening, bias auditing, candidate experience.', posted_at: '2026-05-13' },
+  { title: 'Article opportunity: Skills-based hiring + AI — what the data shows', snippet: '"HR Tech Insider" is curating data-driven pieces on AI recruitment outcomes. Ideal for a hrmony.ai perspective backed by customer data.', posted_at: '2026-05-11' },
 ]
 
 const HN_POOL = [
-  { title: 'Ask HN: How are companies actually using AI in recruiting right now?', snippet: '189 comments. Engineers and founders sharing experiences. Practitioner insights from the AI side are underrepresented.', upvotes: 312, replies: 189 },
-  { title: 'Show HN: We built an AI that explains its hiring recommendations', snippet: 'Discussion about explainability in AI hiring tools. Comment thread asking for production examples.', upvotes: 267, replies: 143 },
+  { title: 'Ask HN: How are companies actually using AI in recruiting right now?', snippet: '189 comments. Engineers and founders sharing experiences. Practitioner insights from the AI side are underrepresented.', upvotes: 312, replies: 189, posted_at: '2026-05-11' },
+  { title: 'Show HN: We built an AI that explains its hiring recommendations', snippet: 'Discussion about explainability in AI hiring tools. Comment thread asking for production examples.', upvotes: 267, replies: 143, posted_at: '2026-05-04' },
 ]
 
 const DEVTO_POOL = [
-  { title: 'Building fair AI screening systems — a technical deep dive', snippet: '2.1k reactions. Comment thread asking how to implement bias auditing in ML pipelines used for recruitment.' },
+  { title: 'Building fair AI screening systems — a technical deep dive', snippet: '2.1k reactions. Comment thread asking how to implement bias auditing in ML pipelines used for recruitment.', posted_at: '2026-05-04' },
 ]
 
 function makeOpportunities(
-  pool: { title: string; snippet: string; community?: string; upvotes?: number; replies?: number }[],
+  pool: { title: string; snippet: string; community?: string; upvotes?: number; replies?: number; posted_at?: string }[],
   platform: Platform,
   topicId: string,
   keyword: string,
@@ -72,6 +72,7 @@ function makeOpportunities(
     author: platform === 'quora' ? 'Quora User' : undefined,
     upvotes: item.upvotes,
     replies: item.replies,
+    posted_at: item.posted_at,
     discovered_at: new Date(Date.now() - i * 4_200_000).toISOString(),
     status: 'new' as const,
   }))
@@ -93,13 +94,13 @@ export async function discover(topic: Topic): Promise<Opportunity[]> {
     all.push(...makeOpportunities(QUORA_POOL, 'quora', id, keyword, 'https://quora.com/q', 'question'))
 
   if (platforms.includes('medium'))
-    all.push(...makeOpportunities(MEDIUM_POOL, 'medium', id, keyword, 'https://medium.com/@harmonai', 'article'))
+    all.push(...makeOpportunities(MEDIUM_POOL, 'medium', id, keyword, 'https://medium.com/@hrmonyai', 'article'))
 
   if (platforms.includes('hackernews'))
     all.push(...makeOpportunities(HN_POOL, 'hackernews', id, keyword, 'https://news.ycombinator.com/item', 'discussion'))
 
   if (platforms.includes('devto'))
-    all.push(...makeOpportunities(DEVTO_POOL, 'devto', id, keyword, 'https://dev.to/harmonai', 'article'))
+    all.push(...makeOpportunities(DEVTO_POOL, 'devto', id, keyword, 'https://dev.to/hrmonyai', 'article'))
 
   return all.sort((a, b) => b.relevance_score - a.relevance_score)
 }

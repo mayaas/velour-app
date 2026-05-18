@@ -103,18 +103,18 @@ const DraftEditor = ({ draft, onClose }: { draft: Draft; onClose: () => void }) 
       </div>
 
       <div className="bg-surface-1 rounded-xl p-4 border border-ink-5 space-y-3">
-        <Toggle on={includesLink} onChange={setIncludesLink} label="Include Harmonai link" />
+        <Toggle on={includesLink} onChange={setIncludesLink} label="Include hrmony.ai link" />
         {includesLink && (
           <>
             <Textarea
               label="Why is the link genuinely relevant here?"
-              placeholder="Describe the specific reason Harmonai addresses what's being asked…"
+              placeholder="Describe the specific reason hrmony.ai addresses what's being asked…"
               value={linkContext}
               onChange={(e) => setLinkContext(e.target.value)}
               rows={2}
             />
             {platformRules.disclosure && (
-              <p className="text-xs text-amber-600">⚠ {meta.name} requires affiliate disclosure. Make sure the draft includes "Full disclosure: I work at Harmonai."</p>
+              <p className="text-xs text-amber-600">⚠ {meta.name} requires affiliate disclosure. Make sure the draft includes "Full disclosure: I work at hrmony.ai."</p>
             )}
           </>
         )}

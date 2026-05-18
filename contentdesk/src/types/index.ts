@@ -31,6 +31,7 @@ export interface Opportunity {
   upvotes?: number
   replies?: number
   community?: string
+  posted_at?: string
   discovered_at: string
   status: OpportunityStatus
 }
@@ -103,7 +104,7 @@ export const PLATFORM_RULES: Record<Platform, { rules: string[]; disclosure: boo
       'Be a genuine community member, not a brand rep',
       'Read subreddit rules — many ban self-promotion',
       'Answer fully before any product mention',
-      'Disclose affiliation clearly if you mention Harmonai',
+      'Disclose affiliation clearly if you mention hrmony.ai',
     ],
     disclosure: true,
     toneGuidance: 'Conversational, humble, community-first. No buzzwords.',
@@ -111,7 +112,7 @@ export const PLATFORM_RULES: Record<Platform, { rules: string[]; disclosure: boo
   quora: {
     rules: [
       'Answer must directly address the question',
-      'Disclose affiliation if mentioning Harmonai',
+      'Disclose affiliation if mentioning hrmony.ai',
       'Provide real value — avoid thin promotional answers',
     ],
     disclosure: true,
